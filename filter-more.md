@@ -22,8 +22,11 @@ debug的时候就看一下，没准会节省很多时间。
 ## Edge
 blur写完之后其实也很明确了，创建2个二维数组，然后写循环迭代算就可以了（这个循环还可以直接copy Blur里面的😄），但一开始想复杂了，要在循环里搞骚操作，最后没弄出来。。
 最后一个坑点就是要注意RGB的值都不能超过255，超过了直接capped with 255，这个信息是放在倒数第二段的:
+
 >And since channel values can only take on integer values from 0 to 255, 
->be sure the resulting value is rounded to the nearest integer **and capped at 255**(不是哥们，当时这一句直接跳了没去读。。)!
+>be sure the resulting value is rounded to the nearest integer
+>**and capped at 255**(不是哥们，当时这一句直接跳了没去读。。)!
+
 没看仔细，又是duck帮忙🙏真得感谢duck🦆，要不然debug de一个晚上都不一定de 出来
 
 这次就这样，主要还是费时很久，但也没办法，就当锻炼阅读能力了😂
