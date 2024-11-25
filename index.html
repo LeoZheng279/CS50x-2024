@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Homepage
+{% endblock %}
+
+{% block main %}
+    <h1>Homepage</h1>
+    <h5>Hello, {{name}}. These are all the stock you own.</h5>
+    <table>
+        <thead>
+            <tr>
+                <th>Stock symbol</th>
+                <th>Shares</th>
+                <th>Current Price per stock</th>
+                <th>Total Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in data%}
+            <tr>
+                <td>{{item["symbol"].upper()}}</td>
+                <td>{{item["share"]}}</td>
+                <td>{{item["price"]}}</td>
+                <td>{{item["total"]}}</td>
+            </tr>
+            {%endfor%}
+        </tbody>
+    </table>
+    <table>
+        <thead>
+            <tr>
+                <th>Current cash balance</th>
+                <th>Total Value</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>{{balance}}</td>
+                <td>{{value}}</td>
+            </tr>
+        </tbody>
+    </table>
+
+{% endblock %}
