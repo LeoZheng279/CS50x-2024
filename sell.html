@@ -1,0 +1,24 @@
+{% extends "layout.html" %}
+
+{% block title %}
+    Sell
+{% endblock %}
+
+{% block main %}
+    <h1>Sell</h1>
+    <h6>Sell certain amount of shares of a certain stock.</h6>
+    <form action="/sell" method="post">
+        <div class="mb-3">
+            <select name="symbol">
+                    <option value = "" disabled selected>Symbol</option>
+                {%for item in data%}
+                    <option value = "{{item["symbol"]}}"> {{item["symbol"].upper()}} </option>
+                {%endfor%}
+            </select>
+        </div>
+        <div class="mb-3">
+            <input autocomplete="off" autofocus class="form-control mx-auto w-auto" name="shares" placeholder="Shares (Positive integer)" type="number">
+        </div>
+        <button class="btn btn-primary" type="submit">Sell</button>
+    </form>
+{% endblock %}
