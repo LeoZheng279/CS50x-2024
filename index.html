@@ -1,11 +1,11 @@
 {% extends "layout.html" %}
 
 {% block title %}
-    Homepage
+    Portfolio
 {% endblock %}
 
 {% block main %}
-    <h1>Homepage</h1>
+    <h1>Portfolio</h1>
     <h5>Hello, {{name}}. These are all the stock you own.</h5>
     <table>
         <thead>
@@ -21,25 +21,21 @@
             <tr>
                 <td>{{item["symbol"].upper()}}</td>
                 <td>{{item["share"]}}</td>
-                <td>{{item["price"]}}</td>
-                <td>{{item["total"]}}</td>
+                <td>{{item["price"] | usd}}</td>
+                <td>{{item["total"] | usd}}</td>
             </tr>
             {%endfor%}
         </tbody>
-    </table>
-    <table>
-        <thead>
+        <tfoot>
             <tr>
-                <th>Current cash balance</th>
-                <th>Total Value</th>
+                <td class="border-0 fw-bold text-end" colspan="3">Cash</td>
+                <td class="border-0 text-end">{{balance | usd}}</td>
             </tr>
-        </thead>
-        <tbody>
             <tr>
-                <td>{{balance}}</td>
-                <td>{{value}}</td>
+                <td class="border-0 fw-bold text-end" colspan="3">TOTAL</td>
+                <td class="border-0 w-bold text-end">{{value | usd}}</td>
             </tr>
-        </tbody>
+        </tfoot>
     </table>
 
 {% endblock %}
