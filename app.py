@@ -37,7 +37,8 @@ def after_request(response):
 def index():
     """Show portfolio of stocks"""
     name = db.execute("select username from users where id = ?", session["user_id"])[0]["username"]
-    balance = db.execute("select cash from users where id = ?", session["user_id"])[0]["cash"]
+    balance = float(db.execute("select cash from users where id = ?", session["user_id"])[0]["cash"])
+    print(balance)
 
     value = 0
     data = db.execute("select * from sharehold where user_id = ?", session["user_id"])
@@ -47,10 +48,7 @@ def index():
         item["total"] = item["price"] * item["share"]
         value += item["total"]
     value += balance
-    for item in data:
-        item["price"] = usd(item["price"])
-        item["total"] = usd(item["total"])
-    return render_template("index.html", name = name, data = data, balance=usd(balance), value = usd(value))
+    return render_template("index.html", name = name, data = data, balance=balance, value = value)
 
 
 @app.route("/buy", methods=["GET", "POST"])
@@ -100,7 +98,6 @@ def history():
     name = db.execute("select username from users where id = ?", session["user_id"])[0]["username"]
     data = db.execute("select * from transactions where user_id = ?", session["user_id"])
     return render_template("history.html", data=data, name = name)
-    return apology("TODO")
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -164,7 +161,7 @@ def quote():
             if result != None:
                 flash("symbol  found!")
                 name = result["name"]
-                price = usd(result["price"])
+                price = result["price"]
                 return render_template("quoted.html", name = name, price = price)
             else:
                 return apology("")
@@ -203,35 +200,38 @@ def sell():
     """Sell shares of stock"""
     data = db.execute("select * from sharehold where user_id = ?", session["user_id"])
     if request.method == "POST":
-        symbols=[]
-        for item in data:
-            symbols.append(item["symbol"])
+        symbols = [item["symbol"] for item in data]
         symbol = request.form.get("symbol")
         if not symbol or symbol not in symbols:
             return apology("Invalid symbol.")
+
         try:
-            shares=int(request.form.get("shares"))
+            shares = int(request.form.get("shares"))
             if shares <= 0:
-                return apology("\"Share\" is not an positive integer.")
-        except ValueError:
                 return apology("\"Share\" is not a positive integer.")
+        except ValueError:
+            return apology("\"Share\" is not a positive integer.")
+
         result = lookup(symbol)
-        if result == None:
+        if result is None:
             return apology("Something went wrong.")
 
         share_before = db.execute("select share from sharehold where user_id = ? and symbol = ?", session["user_id"], symbol)[0]["share"]
         if share_before >= shares:
             price = result["price"]
-            cash = db.execute("select cash from users where id = ?", session["user_id"])
-            left = cash[0]["cash"] + price * float(shares)
+            cash = db.execute("select cash from users where id = ?", session["user_id"])[0]["cash"]
+            left = float(cash + price * shares)
             db.execute("insert into transactions (user_id, symbol, action, price, share, time) values(?, ?, ?, ?, ?, ?)", session["user_id"], symbol, "sell", price, shares, datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
             db.execute("update users set cash = ? where id = ?", left, session["user_id"])
-            if share_before == shares:
+            share_now = share_before - shares
+
+            if share_now == 0:
                 db.execute("delete from sharehold where user_id = ? and symbol = ?", session["user_id"], symbol)
             else:
-                db.execute("update sharehold set share = ? where user_id = ? and symbol = ?", share_before - shares, session["user_id"], symbol)
+                db.execute("update sharehold set share = ? where user_id = ? and symbol = ?", share_now, session["user_id"], symbol)
+
+            return redirect("/")
         else:
-            return apology("no enough shares.")
-        return redirect("/")
+            return apology("Not enough shares.")
     else:
-        return render_template("sell.html", data = data)
+        return render_template("sell.html", data=data)
